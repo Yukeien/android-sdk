@@ -46,6 +46,10 @@ public class SlaaskViewFragment extends Fragment {
     public SlaaskViewFragment() {
     }
 
+    private void logger(String message) {
+        Log.d(">>>>>>>> VIEW >>>>>>>> ", message);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -68,6 +72,7 @@ public class SlaaskViewFragment extends Fragment {
                 flushQueue();
             }
 
+            // android.os.Build.VERSION <= 22 (LOLLIPOP)
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (url.startsWith("mailto")) {
@@ -75,15 +80,23 @@ public class SlaaskViewFragment extends Fragment {
                     return true;
                 }
 
+                if (url.startsWith("tel:")) {
+                    handleTelToLink(url);
+                    return true;
+                }
+
+                if (url.startsWith("slaask:")) {
+                    handleSlaaskToLink(url);
+                    return true;
+                }
+
                 return false;
             }
 
+            // android.os.Build.VERSION > 22+ (Marshmallow and latests)
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                String url = "";
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    url = request.getUrl().toString();
-                }
+                String url = request.getUrl().toString();
 
                 if (url.startsWith("mailto")) {
                     handleMailToLink(url);

@@ -17,38 +17,55 @@ public class Slaask {
     private SlaaskIdentity identity;
     private Boolean identified;
     private String apiKey;
-    private String secretKey;
     private String randomToken;
     private String locale;
     private String color = "#e01865";
     private Context context;
 
-    private Slaask(Context context, String apiKey, String secretKey) {
+    private Slaask(Context context, String apiKey) {
         this.context = context;
         getOrCreateRandomToken();
         this.identity = new SlaaskIdentity();
-        this.identity.setId(randomToken, secretKey);
+        this.identity.setId(randomToken);
         this.identified = false;
         this.apiKey = apiKey;
-        this.secretKey = secretKey;
     }
 
-    private Slaask(Context context, String apiKey, SlaaskIdentity identity, String secretKey) {
+    private Slaask(Context context, String apiKey, SlaaskIdentity identity) {
         this.context = context;
         this.apiKey = apiKey;
-        this.secretKey = secretKey;
         this.identity = identity;
         this.identified = true;
     }
 
+    public static void initialize(Context context, String apiKey) {
+        instance = new Slaask(context, apiKey);
+    }
+
+    public static void initialize(Context context, String apiKey, SlaaskIdentity identity) {
+        instance = new Slaask(context, apiKey, identity);
+    }
+
+    private static void deprecationAlert() {
+        Log.e(packageName, "The secretKey argument is deprecated. Please see https://xenoapp.help/hc/developers-documentation/android-sdk/automatically-identify-your-users-on-your-android-apps");
+    }
+
+    // DEPRECATED
+    private Slaask(Context context, String apiKey, String secretKey) {
+        deprecationAlert();
+    }
+
+    private Slaask(Context context, String apiKey, SlaaskIdentity identity, String secretKey) {
+        deprecationAlert();
+    }
+
     public static void initialize(Context context, String apiKey, String secretKey) {
-        instance = new Slaask(context, apiKey, secretKey);
+        deprecationAlert();
     }
 
     public static void initialize(Context context, String apiKey, String secretKey, SlaaskIdentity identity) {
-        instance = new Slaask(context, apiKey, identity, secretKey);
+        deprecationAlert();
     }
-
 
     public static Slaask getInstance() {
         if (instance == null) {
@@ -90,10 +107,6 @@ public class Slaask {
 
     public String getApiKey() {
         return apiKey;
-    }
-
-    public String getSecretKey() {
-        return secretKey;
     }
 
     public void setRandomToken(String tokenId) {
